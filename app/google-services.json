@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "716921962200",
+    "project_id": "emotionchat-18645",
+    "storage_bucket": "emotionchat-18645.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:716921962200:android:812d3ce3f253f554bd21ad",
+        "android_client_info": {
+          "package_name": "com.skye.emotionchat"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBdqImkW1Q08c4cjkYtocdPG1sOeeu0CoM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
