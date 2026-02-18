@@ -2,6 +2,11 @@ package com.skye.emotionchat.core
 
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.skye.emotionchat.data.AuthRepositoryImpl
+import com.skye.emotionchat.data.ChatRepositoryImpl
+import com.skye.emotionchat.data.FirebaseAuthDataSource
+import com.skye.emotionchat.data.FirestoreDataSource
+
 object ServiceLocator {
 
     private val auth = FirebaseAuth.getInstance()
