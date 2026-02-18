@@ -47,7 +47,7 @@ fun AppNavGraph() {
             val chatId = backStackEntry.arguments?.getString("chatId") ?: ""
             val receiverId = backStackEntry.arguments?.getString("receiverId") ?: ""
 
-            ChatScreen(chatId, receiverId)
+            ChatScreen(chatId, receiverId, navController)
         }
     }
 }

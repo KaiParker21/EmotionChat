@@ -19,11 +19,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 
 @Composable
 fun ChatScreen(
     chatId: String,
     receiverId: String,
+    navController: NavController,
     viewModel: ChatViewModel = viewModel()
 ) {
     val messages by viewModel.messages.collectAsState()
@@ -43,7 +45,14 @@ fun ChatScreen(
     }
 
     Scaffold(
-        containerColor = MaterialTheme.colorScheme.background
+        containerColor = MaterialTheme.colorScheme.background,
+        topBar = {
+            ChatTopBar(
+                receiverId = receiverId,
+                messages = messages,
+                onBack = { navController.popBackStack() }
+            )
+        }
     ) { padding ->
 
         Column(
@@ -51,6 +60,8 @@ fun ChatScreen(
                 .fillMaxSize()
                 .padding(padding)
         ) {
+
+            EmotionSummaryRow(messages)
 
             LazyColumn(
                 state = listState,
