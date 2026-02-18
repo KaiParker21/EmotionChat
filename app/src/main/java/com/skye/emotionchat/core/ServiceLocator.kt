@@ -6,6 +6,7 @@ import com.skye.emotionchat.data.AuthRepositoryImpl
 import com.skye.emotionchat.data.ChatRepositoryImpl
 import com.skye.emotionchat.data.FirebaseAuthDataSource
 import com.skye.emotionchat.data.FirestoreDataSource
+import com.skye.emotionchat.data.UserRepositoryImpl
 
 object ServiceLocator {
 
@@ -15,6 +16,8 @@ object ServiceLocator {
     private val authDataSource = FirebaseAuthDataSource(auth)
     private val firestoreDataSource = FirestoreDataSource(firestore)
 
-    val authRepository = AuthRepositoryImpl(authDataSource, firestoreDataSource)
+    val authRepository = AuthRepositoryImpl(authDataSource, firestoreDataSource, firestore)
     val chatRepository = ChatRepositoryImpl(firestoreDataSource)
+    val userRepository = UserRepositoryImpl(firestore)
+
 }
