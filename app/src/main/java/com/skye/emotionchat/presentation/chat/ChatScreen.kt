@@ -33,33 +33,29 @@ fun ChatScreen(
             Text("$emotion: $count")
         }
 
+        EmotionSummary(messages)
+
         LazyColumn(
-            modifier = Modifier.weight(1f)
+            modifier = Modifier.weight(1f),
+            reverseLayout = false
         ) {
             items(messages) { message ->
-                Text(
-                    text = "${message.text} (${message.emotion?.label ?: "Analyzing..."})",
-                    modifier = Modifier.padding(8.dp)
-                )
+                MessageItem(message = message)
             }
         }
 
+
         Row(modifier = Modifier.padding(8.dp)) {
 
-            TextField(
-                value = text,
-                onValueChange = { text = it },
-                modifier = Modifier.weight(1f)
-            )
-
-            Button(
-                onClick = {
+            MessageInput(
+                text = text,
+                onTextChange = { text = it },
+                onSend = {
                     viewModel.send(chatId, text, receiverId)
                     text = ""
                 }
-            ) {
-                Text("Send")
-            }
+            )
+
         }
     }
 }
