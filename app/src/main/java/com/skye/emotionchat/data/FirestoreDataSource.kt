@@ -1,12 +1,14 @@
 package com.skye.emotionchat.data
 
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.SetOptions
 import com.skye.emotionchat.domain.model.Emotion
 import com.skye.emotionchat.domain.model.Message
 import com.skye.emotionchat.domain.model.User
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.tasks.await
 
 class FirestoreDataSource(
     private val firestore: FirebaseFirestore
@@ -28,10 +30,9 @@ class FirestoreDataSource(
                         text = it.getString("text") ?: "",
                         timestamp = it.getLong("timestamp") ?: 0L,
                         emotion = it.getString("emotionLabel")?.let { label ->
-                            Emotion(
+                            com.skye.emotionchat.domain.model.Emotion(
                                 label,
-                                it.getDouble("emotionConfidence")
-                                    ?: 0.0
+                                it.getDouble("emotionConfidence") ?: 0.0
                             )
                         }
                     )
@@ -44,17 +45,27 @@ class FirestoreDataSource(
     }
 
     suspend fun sendMessage(chatId: String, message: Message) {
-        val data = hashMapOf(
-            "senderId" to message.senderId,
-            "receiverId" to message.receiverId,
-            "text" to message.text,
-            "timestamp" to message.timestamp
-        )
 
-        firestore.collection("chats")
-            .document(chatId)
-            .collection("messages")
-            .add(data)
+        val chatRef = firestore.collection("chats").document(chatId)
+
+        // Ensure chat document exists
+        chatRef.set(
+            mapOf(
+                "participants" to listOf(message.senderId, message.receiverId)
+            ),
+            SetOptions.merge()
+        ).await()
+
+        // Add message
+        chatRef.collection("messages")
+            .add(
+                mapOf(
+                    "senderId" to message.senderId,
+                    "receiverId" to message.receiverId,
+                    "text" to message.text,
+                    "timestamp" to message.timestamp
+                )
+            ).await()
     }
 
     fun getUsers(): Flow<List<User>> = callbackFlow {
