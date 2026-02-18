@@ -3,59 +3,64 @@ package com.skye.emotionchat.presentation.chat
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 
 @Composable
 fun ChatScreen(
     chatId: String,
     receiverId: String,
-    viewModel: ChatViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
+    viewModel: ChatViewModel = viewModel()
 ) {
-
     val messages by viewModel.messages.collectAsState()
     var text by remember { mutableStateOf("") }
 
-    LaunchedEffect(Unit) {
-        viewModel.observe(chatId)
+    val listState = rememberLazyListState()
+
+    LaunchedEffect(messages.size) {
+        if (messages.isNotEmpty()) {
+            listState.animateScrollToItem(messages.lastIndex)
+        }
     }
 
-    Column(modifier = Modifier.fillMaxSize()) {
+    Scaffold(
+        containerColor = MaterialTheme.colorScheme.background
+    ) { padding ->
 
-        val summary = messages
-            .mapNotNull { it.emotion?.label }
-            .groupingBy { it }
-            .eachCount()
-
-        summary.forEach { (emotion, count) ->
-            Text("$emotion: $count")
-        }
-
-        EmotionSummary(messages)
-
-        LazyColumn(
-            modifier = Modifier.weight(1f),
-            reverseLayout = false
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
         ) {
-            items(messages) { message ->
-                MessageItem(message = message)
+
+            LazyColumn(
+                state = listState,
+                modifier = Modifier.weight(1f),
+                contentPadding = PaddingValues(vertical = 12.dp)
+            ) {
+                itemsIndexed(messages) { index, message ->
+                    AnimatedMessageItem(
+                        message = message,
+                        previousMessage = messages.getOrNull(index - 1)
+                    )
+                }
             }
-        }
 
-
-        Row(modifier = Modifier.padding(8.dp)) {
-
-            MessageInput(
+            ModernMessageInput(
                 text = text,
                 onTextChange = { text = it },
                 onSend = {
-                    viewModel.send(chatId, text, receiverId)
-                    text = ""
+                    if (text.isNotBlank()) {
+                        viewModel.send(chatId, text, receiverId)
+                        text = ""
+                    }
                 }
             )
-
         }
     }
 }
