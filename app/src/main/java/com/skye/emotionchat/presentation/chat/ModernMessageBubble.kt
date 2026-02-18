@@ -150,17 +150,6 @@ private fun EmotionChip(message: Message) {
                 color = animatedColor
             )
         }
-
-        Spacer(modifier = Modifier.height(4.dp))
-
-        LinearProgressIndicator(
-            progress = animatedProgress,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(4.dp),
-            color = animatedColor,
-            trackColor = animatedColor.copy(alpha = 0.15f)
-        )
     }
 }
 
