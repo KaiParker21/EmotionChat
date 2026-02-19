@@ -16,7 +16,7 @@ object ServiceLocator {
     private val authDataSource = FirebaseAuthDataSource(auth)
     private val firestoreDataSource = FirestoreDataSource(firestore)
 
-    val authRepository = AuthRepositoryImpl(authDataSource, firestoreDataSource, firestore)
+    val authRepository = AuthRepositoryImpl(authDataSource, firestore)
     val chatRepository = ChatRepositoryImpl(firestoreDataSource)
     val userRepository = UserRepositoryImpl(firestore)
 

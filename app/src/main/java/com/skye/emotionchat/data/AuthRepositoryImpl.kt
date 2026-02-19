@@ -5,7 +5,6 @@ import com.skye.emotionchat.domain.repository.AuthRepository
 
 class AuthRepositoryImpl(
     private val authDataSource: FirebaseAuthDataSource,
-    private val firestoreDataSource: FirestoreDataSource,
     private val firestore: FirebaseFirestore
 ) : AuthRepository {
 
@@ -34,4 +33,9 @@ class AuthRepositoryImpl(
     override fun getCurrentUserId(): String? {
         return authDataSource.currentUserId()
     }
+
+    override fun logout() {
+        authDataSource.logout()
+    }
+
 }

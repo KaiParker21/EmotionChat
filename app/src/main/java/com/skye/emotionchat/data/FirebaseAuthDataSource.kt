@@ -14,6 +14,8 @@ class FirebaseAuthDataSource(
     suspend fun register(email: String, password: String) {
         auth.createUserWithEmailAndPassword(email, password).await()
     }
-
     fun currentUserId(): String? = auth.currentUser?.uid
+    fun logout() {
+        auth.signOut()
+    }
 }
