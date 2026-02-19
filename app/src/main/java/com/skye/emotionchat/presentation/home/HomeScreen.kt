@@ -41,7 +41,7 @@ fun HomeScreen(
             items(users) { user ->
 
                 Text(
-                    text = user.email,
+                    text = user.username,
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(16.dp)

@@ -1,6 +1,5 @@
 package com.skye.emotionchat.data
 
-import com.google.firebase.firestore.SetOptions
 import com.skye.emotionchat.domain.model.Message
 import com.skye.emotionchat.domain.repository.ChatRepository
 import kotlinx.coroutines.flow.Flow
@@ -16,4 +15,6 @@ class ChatRepositoryImpl(
     override suspend fun sendMessage(chatId: String, message: Message) {
         firestoreDataSource.sendMessage(chatId, message)
     }
+
+
 }

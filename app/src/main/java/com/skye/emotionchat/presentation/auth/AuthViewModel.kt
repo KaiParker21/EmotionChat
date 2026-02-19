@@ -16,9 +16,9 @@ class AuthViewModel : ViewModel() {
         }
     }
 
-    fun register(email: String, password: String, onSuccess: () -> Unit) {
+    fun register(email: String, username: String, password: String, onSuccess: () -> Unit) {
         viewModelScope.launch {
-            repo.register(email, password)
+            repo.register(email, username, password)
             onSuccess()
         }
     }

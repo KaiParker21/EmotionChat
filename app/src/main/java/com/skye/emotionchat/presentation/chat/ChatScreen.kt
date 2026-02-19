@@ -30,6 +30,7 @@ fun ChatScreen(
 ) {
     val messages by viewModel.messages.collectAsState()
     var text by remember { mutableStateOf("") }
+    val receiverUsername by viewModel.receiverUsername.collectAsState()
 
     val listState = rememberLazyListState()
 
@@ -37,6 +38,9 @@ fun ChatScreen(
         viewModel.observe(chatId)
     }
 
+    LaunchedEffect(receiverId) {
+        viewModel.loadReceiver(receiverId)
+    }
 
     LaunchedEffect(messages.size) {
         if (messages.isNotEmpty()) {
@@ -48,7 +52,7 @@ fun ChatScreen(
         containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             ChatTopBar(
-                receiverId = receiverId,
+                username = receiverUsername,
                 messages = messages,
                 onBack = { navController.popBackStack() }
             )

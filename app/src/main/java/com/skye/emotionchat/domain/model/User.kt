@@ -2,5 +2,6 @@ package com.skye.emotionchat.domain.model
 
 data class User(
     val uid: String,
-    val email: String
+    val email: String,
+    val username: String = ""
 )

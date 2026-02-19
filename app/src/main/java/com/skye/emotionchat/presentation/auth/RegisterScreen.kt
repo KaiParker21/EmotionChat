@@ -15,10 +15,18 @@ fun RegisterScreen(
 ) {
 
     var email by remember { mutableStateOf("") }
+    var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
 
     Column(modifier = Modifier.padding(16.dp)) {
 
+        TextField(
+            value = username,
+            onValueChange = { username = it },
+            label = { Text("Username") },
+            modifier = Modifier.fillMaxWidth()
+        )
+        Spacer(modifier = Modifier.height(8.dp))
         TextField(email, { email = it }, label = { Text("Email") })
         Spacer(modifier = Modifier.height(8.dp))
         TextField(password, { password = it }, label = { Text("Password") })
@@ -26,7 +34,7 @@ fun RegisterScreen(
         Spacer(modifier = Modifier.height(16.dp))
 
         Button(onClick = {
-            viewModel.register(email, password) {
+            viewModel.register(email, username, password) {
                 navController.navigate(Screen.Home.route)
             }
         }) {

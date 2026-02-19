@@ -15,7 +15,7 @@ import com.skye.emotionchat.domain.model.Message
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ChatTopBar(
-    receiverId: String,
+    username: String,
     messages: List<Message>,
     onBack: () -> Unit
 ) {
@@ -30,7 +30,7 @@ fun ChatTopBar(
     CenterAlignedTopAppBar(
         title = {
             Column(horizontalAlignment = androidx.compose.ui.Alignment.CenterHorizontally) {
-                Text(text = receiverId)
+                Text(text = username)
 
                 if (dominantEmotion != null) {
                     Text(

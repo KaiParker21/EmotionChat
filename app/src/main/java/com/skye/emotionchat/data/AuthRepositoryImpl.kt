@@ -13,7 +13,7 @@ class AuthRepositoryImpl(
         authDataSource.login(email, password)
     }
 
-    override suspend fun register(email: String, password: String) {
+    override suspend fun register(email: String, username: String, password: String) {
         authDataSource.register(email, password)
 
         val uid = authDataSource.currentUserId() ?: return
@@ -24,6 +24,7 @@ class AuthRepositoryImpl(
                 mapOf(
                     "uid" to uid,
                     "email" to email,
+                    "username" to username,
                     "createdAt" to System.currentTimeMillis()
                 )
             )

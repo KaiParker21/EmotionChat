@@ -12,9 +12,23 @@ class ChatViewModel : ViewModel() {
 
     private val repository = ServiceLocator.chatRepository
     private val authRepository = ServiceLocator.authRepository
+    private val userRepository = ServiceLocator.userRepository
+
 
     private val _messages = MutableStateFlow<List<Message>>(emptyList())
     val messages: StateFlow<List<Message>> = _messages
+
+    private val _receiverUsername = MutableStateFlow("")
+    val receiverUsername: StateFlow<String> = _receiverUsername
+
+    fun loadReceiver(uid: String) {
+        viewModelScope.launch {
+            val user = userRepository.getUserById(uid)
+            _receiverUsername.value =
+                user?.username?.ifBlank { user.email } ?: "User"
+        }
+    }
+
 
     fun observe(chatId: String) {
         viewModelScope.launch {
