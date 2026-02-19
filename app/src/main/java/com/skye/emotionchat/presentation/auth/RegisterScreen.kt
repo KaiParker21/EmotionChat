@@ -31,16 +31,21 @@ import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ContainedLoadingIndicator
 import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -48,6 +53,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -59,9 +65,9 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.google.common.math.LinearTransformation.horizontal
 import com.skye.emotionchat.presentation.navigation.Screen
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun RegisterScreen(
     navController: NavController,
@@ -72,6 +78,11 @@ fun RegisterScreen(
     var password by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
 
+    val uiState by viewModel.registerState.collectAsState()
+    val snackbarHostState = remember { SnackbarHostState() }
+    val keyboardController = LocalSoftwareKeyboardController.current
+
+
     var isVisible by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
@@ -79,8 +90,24 @@ fun RegisterScreen(
     }
 
     Scaffold(
-        containerColor = MaterialTheme.colorScheme.surfaceContainerLow
+        containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+        snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { paddingValues ->
+
+        LaunchedEffect(uiState.error) {
+            uiState.error?.let {
+                snackbarHostState.showSnackbar(it)
+            }
+        }
+
+        LaunchedEffect(uiState.isSuccess) {
+            if (uiState.isSuccess) {
+                navController.navigate(Screen.Home.route) {
+                    popUpTo(Screen.Register.route) { inclusive = true }
+                }
+            }
+        }
+
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -187,7 +214,8 @@ fun RegisterScreen(
                                 colors = OutlinedTextFieldDefaults.colors(
                                     focusedBorderColor = MaterialTheme.colorScheme.primary,
                                     unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant
-                                )
+                                ),
+                                enabled = !uiState.isLoading
                             )
 
                             Spacer(modifier = Modifier.height(16.dp))
@@ -215,11 +243,8 @@ fun RegisterScreen(
                                 ),
                                 keyboardActions = KeyboardActions(
                                     onDone = {
-                                        viewModel.register(email, username, password) {
-                                            navController.navigate(Screen.Home.route) {
-                                                popUpTo(Screen.Register.route) { inclusive = true }
-                                            }
-                                        }
+                                        keyboardController?.hide()
+                                        viewModel.register(email, username, password)
                                     }
                                 ),
                                 shape = MaterialTheme.shapes.large,
@@ -227,18 +252,17 @@ fun RegisterScreen(
                                 colors = OutlinedTextFieldDefaults.colors(
                                     focusedBorderColor = MaterialTheme.colorScheme.primary,
                                     unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant
-                                )
+                                ),
+                                enabled = !uiState.isLoading
                             )
 
                             Spacer(modifier = Modifier.height(32.dp))
 
                             Button(
+                                enabled = !uiState.isLoading,
                                 onClick = {
-                                    viewModel.register(email, username, password) {
-                                        navController.navigate(Screen.Home.route) {
-                                            popUpTo(Screen.Register.route) { inclusive = true }
-                                        }
-                                    }
+                                    keyboardController?.hide()
+                                    viewModel.register(email, username, password)
                                 },
                                 modifier = Modifier
                                     .fillMaxWidth()
@@ -247,11 +271,15 @@ fun RegisterScreen(
                                 shape = RoundedCornerShape(16.dp),
                                 elevation = ButtonDefaults.buttonElevation(defaultElevation = 4.dp)
                             ) {
-                                Text(
-                                    text = "Create Account",
-                                    fontSize = 18.sp,
-                                    fontWeight = FontWeight.Bold
-                                )
+                                if (uiState.isLoading) {
+                                    ContainedLoadingIndicator()
+                                } else {
+                                    Text(
+                                        text = "Create Account",
+                                        fontSize = 18.sp,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                }
                             }
                         }
                     }
@@ -267,6 +295,7 @@ fun RegisterScreen(
                         modifier = Modifier
                             .clip(MaterialTheme.shapes.small)
                             .clickable(
+                                enabled = !uiState.isLoading,
                                 interactionSource = remember { MutableInteractionSource() },
                                 indication = null,
                                 onClick = {

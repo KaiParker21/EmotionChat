@@ -35,16 +35,21 @@ import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ContainedLoadingIndicator
 import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -55,6 +60,7 @@ import androidx.compose.ui.composed
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -68,6 +74,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.skye.emotionchat.presentation.navigation.Screen
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun LoginScreen(
     navController: NavController,
@@ -77,6 +84,10 @@ fun LoginScreen(
     var password by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
 
+    val uiState by viewModel.uiState.collectAsState()
+    val snackbarHostState = remember { SnackbarHostState() }
+    val keyboardController = LocalSoftwareKeyboardController.current
+
     var isVisible by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
@@ -84,8 +95,24 @@ fun LoginScreen(
     }
 
     Scaffold(
-        containerColor = MaterialTheme.colorScheme.surfaceContainerLow
+        containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+        snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { paddingValues ->
+
+        LaunchedEffect(uiState.error) {
+            uiState.error?.let {
+                snackbarHostState.showSnackbar(it)
+            }
+        }
+
+        LaunchedEffect(uiState.isSuccess) {
+            if (uiState.isSuccess) {
+                navController.navigate(Screen.Home.route) {
+                    popUpTo(Screen.Login.route) { inclusive = true }
+                }
+            }
+        }
+
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -170,7 +197,8 @@ fun LoginScreen(
                                 colors = OutlinedTextFieldDefaults.colors(
                                     focusedBorderColor = MaterialTheme.colorScheme.primary,
                                     unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant
-                                )
+                                ),
+                                enabled = !uiState.isLoading
                             )
 
                             Spacer(modifier = Modifier.height(16.dp))
@@ -198,11 +226,8 @@ fun LoginScreen(
                                 ),
                                 keyboardActions = KeyboardActions(
                                     onDone = {
-                                        viewModel.login(email, password) {
-                                            navController.navigate(Screen.Home.route) {
-                                                popUpTo(Screen.Login.route) { inclusive = true }
-                                            }
-                                        }
+                                        keyboardController?.hide()
+                                        viewModel.login(email, password)
                                     }
                                 ),
                                 shape = MaterialTheme.shapes.large,
@@ -210,18 +235,17 @@ fun LoginScreen(
                                 colors = OutlinedTextFieldDefaults.colors(
                                     focusedBorderColor = MaterialTheme.colorScheme.primary,
                                     unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant
-                                )
+                                ),
+                                enabled = !uiState.isLoading
                             )
 
                             Spacer(modifier = Modifier.height(32.dp))
 
                             Button(
+                                enabled = !uiState.isLoading,
                                 onClick = {
-                                    viewModel.login(email, password) {
-                                        navController.navigate(Screen.Home.route) {
-                                            popUpTo(Screen.Login.route) { inclusive = true }
-                                        }
-                                    }
+                                    keyboardController?.hide()
+                                    viewModel.login(email, password)
                                 },
                                 modifier = Modifier
                                     .fillMaxWidth()
@@ -230,11 +254,16 @@ fun LoginScreen(
                                 shape = RoundedCornerShape(16.dp),
                                 elevation = ButtonDefaults.buttonElevation(defaultElevation = 4.dp)
                             ) {
-                                Text(
-                                    text = "Login",
-                                    fontSize = 18.sp,
-                                    fontWeight = FontWeight.Bold
-                                )
+                                if (uiState.isLoading) {
+                                    ContainedLoadingIndicator()
+                                } else {
+                                    Text(
+                                        text = "Login",
+                                        fontSize = 18.sp,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                }
+
                             }
                         }
                     }
@@ -250,6 +279,7 @@ fun LoginScreen(
                         modifier = Modifier
                             .clip(MaterialTheme.shapes.small)
                             .clickable(
+                                enabled = !uiState.isLoading,
                                 interactionSource = remember { MutableInteractionSource() },
                                 indication = null,
                                 onClick = { navController.navigate(Screen.Register.route) }
