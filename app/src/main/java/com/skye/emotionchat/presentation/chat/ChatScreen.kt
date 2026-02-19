@@ -20,6 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.skye.emotionchat.core.ServiceLocator
 
 @Composable
 fun ChatScreen(
@@ -32,6 +33,15 @@ fun ChatScreen(
     var text by remember { mutableStateOf("") }
     val receiverUsername by viewModel.receiverUsername.collectAsState()
 
+    val currentUser = ServiceLocator.authRepository.getCurrentUserId()
+
+    val displayName = if (receiverId == currentUser) {
+        "Saved Messages"
+    } else {
+        receiverUsername
+    }
+
+
     val listState = rememberLazyListState()
 
     LaunchedEffect(chatId) {
@@ -39,7 +49,9 @@ fun ChatScreen(
     }
 
     LaunchedEffect(receiverId) {
-        viewModel.loadReceiver(receiverId)
+        if (receiverId != currentUser) {
+            viewModel.loadReceiver(receiverId)
+        }
     }
 
     LaunchedEffect(messages.size) {
@@ -52,7 +64,7 @@ fun ChatScreen(
         containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             ChatTopBar(
-                username = receiverUsername,
+                username = displayName,
                 messages = messages,
                 onBack = { navController.popBackStack() }
             )

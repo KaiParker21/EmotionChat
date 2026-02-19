@@ -126,6 +126,21 @@ fun HomeScreen(
             contentPadding = PaddingValues(vertical = 24.dp, horizontal = 16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
+            item {
+                val currentUser = ServiceLocator.authRepository.getCurrentUserId()
+                if (currentUser != null) {
+                    FlashyUserListItem(
+                        username = "Saved Messages",
+                        onClick = {
+                            val chatId = "${currentUser}_${currentUser}"
+                            navController.navigate(
+                                Screen.Chat.create(chatId, currentUser)
+                            )
+                        }
+                    )
+                }
+            }
+
             items(
                 items = users,
                 key = { user -> user.uid }
