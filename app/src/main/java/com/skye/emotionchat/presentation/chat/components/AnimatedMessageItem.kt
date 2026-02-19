@@ -1,4 +1,4 @@
-package com.skye.emotionchat.presentation.chat
+package com.skye.emotionchat.presentation.chat.components
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn

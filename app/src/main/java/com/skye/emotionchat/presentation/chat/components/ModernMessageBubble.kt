@@ -1,7 +1,6 @@
-package com.skye.emotionchat.presentation.chat
+package com.skye.emotionchat.presentation.chat.components
 
 import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -19,7 +18,6 @@ import androidx.compose.material.icons.filled.SentimentNeutral
 import androidx.compose.material.icons.filled.SentimentSatisfied
 import androidx.compose.material.icons.filled.Whatshot
 import androidx.compose.material3.Icon
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -125,7 +123,6 @@ private fun EmotionChip(message: Message) {
     }
 
     val animatedColor by animateColorAsState(emotionColor)
-    val animatedProgress by animateFloatAsState(confidence)
 
     Column {
 
