@@ -53,7 +53,7 @@ https://github.com/KaiParker21/EmotionChat/releases/latest
 
 ### Install APK
 
-1. Download the `app-release.apk`
+1. Download the `EmotionChat-v1.0.0.apk`
 2. Enable **Install from unknown sources**
 3. Install and open the app
 
